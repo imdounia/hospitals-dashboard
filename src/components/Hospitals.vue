@@ -1,5 +1,9 @@
 <template>
   <div>
+    <h1 class="title mb-3 text-center"><span class="material-symbols-outlined fs-2 me-2">
+      ecg_heart
+      </span>Hospital dashboard
+    </h1>
     <ul class="nav nav-tabs">
       <li class="nav-item" v-for="(hospital, index) in hospitals" :key="hospital.name">
         <a :class="['nav-link', { active: currentTab === index }]" 
