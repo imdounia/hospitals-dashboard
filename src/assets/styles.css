@@ -5,6 +5,7 @@
   --primary-color: #CF55F4;
   --secondary-color: #7E3BFA;
   --gradient-color: linear-gradient(to left, var(--primary-color), var(--secondary-color));
+  --gradient-color-transparent: linear-gradient(to left,  rgba(var(--primary-color), 0.5),  rgba(var(--secondary-color), 0.5));
   --text-color: #C4C4C4;
   --font-size-base: 16px;
   --spacing: 8px;

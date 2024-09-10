@@ -48,14 +48,15 @@
               <p class="card-text align-self-end fs-2">{{ hospital.overview.numberOfNurses }}</p>
             </div>
           </div> 
-          
-          
-        </div>
         
-        <div class="container my-4">
+        
+        <div class="custom-container my-4 mx-3">
+        <div class="container">
             <canvas :id="'hospitalChart-' + index"></canvas>
           </div>
+</div>
 
+</div>
         </div>
       </div>
     </div>
@@ -152,20 +153,35 @@ export default {
   color: var(--text-color);
 }
 
+.custom-container{
+  background-color: var(--dark-blue);
+  border-radius: 20px;
+  padding: 15px;
+  box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+  transition: transform 0.3s ease-in-out; 
+}
+.custom-container:hover {
+  transform: scale(1.02); /* Slight scaling on hover */
+}
+
 .hospital-overview {
-  
-  height: 7rem;
+  background-color: var(--dark-blue);
+  height: 8rem;
+  border-radius: 20px;
+  box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+  transition: transform 0.3s ease-in-out; 
   /* padding: 20px;
   border: 1px solid #ccc; */
+}
+.hospital-overview:hover {
+  transform: scale(1.03); /* Slight scaling on hover */
 }
 
 .hospital-overview:nth-child(odd) {
   color: var(--primary-color);
-  background-color: #2C3048;
 }
 .hospital-overview:nth-child(even) {
   color: var(--secondary-color);
-  background-color: var(--dark-blue);
 }
 
 /* .card-title {
