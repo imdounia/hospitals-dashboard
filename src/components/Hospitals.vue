@@ -50,42 +50,51 @@
           </div> 
         
         
-        <div class="custom-container my-4 mx-3">
+        <div class="custom-container my-4 mx-2">
         <div class="container">
           <h4 class="mb-3">Monthly hospitalizations</h4>
             <canvas :id="'hospitalChart-' + index"></canvas>
           </div>
       </div>
 
-      <div class="custom-container my-4 mx-3">
-            <h4 class="mb-3">Clinical Trials</h4>
-            <div class="btn-group" role="group" aria-label="Filter Trials">
-              <button type="button" :class="{'btn button-primary': selectedStatus === 'All', 'btn btn-outline-secondary': selectedStatus !== 'All'}" @click="filterStatus('All')">All</button>
-              <button type="button" :class="{'btn button-primary': selectedStatus === 'En cours', 'btn btn-outline-secondary': selectedStatus !== 'En cours'}" @click="filterStatus('En cours')">En cours</button>
-              <button type="button" :class="{'btn button-primary': selectedStatus === 'Terminé', 'btn btn-outline-secondary': selectedStatus !== 'Terminé'}" @click="filterStatus('Terminé')">Terminé</button>
+      <div class="container my-4">
+      <div class="d-flex flex-column flex-md-row gap-3 justify-content-between">
+        <div class="col-12 col-md-7 custom-container">
+              <h4 class="mb-3">Clinical Trials</h4>
+              <div class="btn-group" role="group" aria-label="Filter Trials">
+                <button type="button" :class="{'btn button-primary': selectedStatus === 'All', 'btn btn-outline-secondary': selectedStatus !== 'All'}" @click="filterStatus('All')">All</button>
+                <button type="button" :class="{'btn button-primary': selectedStatus === 'En cours', 'btn btn-outline-secondary': selectedStatus !== 'En cours'}" @click="filterStatus('En cours')">En cours</button>
+                <button type="button" :class="{'btn button-primary': selectedStatus === 'Terminé', 'btn btn-outline-secondary': selectedStatus !== 'Terminé'}" @click="filterStatus('Terminé')">Terminé</button>
+              </div>
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th scope="col">Trial Name</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Start Date</th>
+                    <th scope="col">End Date</th>
+                    <th scope="col">Total Patients</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(trial, trialIndex) in filteredTrials(hospital.clinicalTrials)" :key="'trial-' + trialIndex">
+                    <td>{{ trial.name }}</td>
+                    <td>{{ trial.status }}</td>
+                    <td>{{ formatDate(trial.startDate) }}</td>
+                    <td>{{ formatDate(trial.endDate) }}</td>
+                    <td>{{ trial.totalPatients }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th scope="col">Trial Name</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Start Date</th>
-                  <th scope="col">End Date</th>
-                  <th scope="col">Total Patients</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(trial, trialIndex) in filteredTrials(hospital.clinicalTrials)" :key="'trial-' + trialIndex">
-                  <td>{{ trial.name }}</td>
-                  <td>{{ trial.status }}</td>
-                  <td>{{ formatDate(trial.startDate) }}</td>
-                  <td>{{ formatDate(trial.endDate) }}</td>
-                  <td>{{ trial.totalPatients }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          
+
+            <div class="col-12 col-md-5 custom-container">
+                  <h4 class="mb-3">Hospital Departments</h4>
+                  <canvas :id="'doughnutChart-' + index"></canvas>
+            </div>  
+        </div>
+      </div>
+
         </div>
         </div>
       </div>
@@ -96,9 +105,9 @@
 <script>
 import '@/assets/styles.css';
 import hospitalData from '@/data/data_exemple1.JSON';
-import { Chart, BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend } from 'chart.js';
+import { Chart, BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend, DoughnutController, ArcElement } from 'chart.js';
 
-Chart.register(BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
+Chart.register(BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend, DoughnutController, ArcElement);
 
 export default {
     name:'hospitals',
@@ -134,6 +143,13 @@ export default {
       this.selectedStatus = status;
     },
     renderChart(hospital, index) {
+      if (this.chart) {
+        this.chart.destroy();
+      }
+      if (this.doughnutChart) {
+        this.doughnutChart.destroy();
+      }
+      
       const ctx = document.getElementById(`hospitalChart-${index}`).getContext('2d');
       const labels = hospital.monthlyHospitalizations.map(item => `${item.month} ${item.year}`);
       const data = hospital.monthlyHospitalizations.map(item => item.value);
@@ -141,10 +157,6 @@ export default {
       const gradient = ctx.createLinearGradient(0, 0, ctx.canvas.width, 0);
       gradient.addColorStop(0, '#CF55F4');
       gradient.addColorStop(1, '#7E3BFA');
-
-      if (this.chart) {
-        this.chart.destroy();
-      }
 
       this.chart = new Chart(ctx, {
         type: 'bar',
@@ -172,6 +184,33 @@ export default {
             title: {
               display: true,
               text: `Monthly Hospitalizations - ${hospital.name}`
+            }
+          }
+        }
+      });
+      const doughnutCtx = document.getElementById(`doughnutChart-${index}`).getContext('2d');
+      const doughnutLabels = hospital.hospitalDepartments.map(dept => dept.department);
+      const doughnutData = hospital.hospitalDepartments.map(dept => dept.patientsPerDay);
+
+      this.doughnutChart = new Chart(doughnutCtx, {
+        type: 'doughnut',
+        data: {
+          labels: doughnutLabels,
+          datasets: [{
+            label: 'Patients Per Day',
+            data: doughnutData,
+            backgroundColor: ['#CF55F4', '#7E3BFA', '#B18CFE']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom',
+            },
+            title: {
+              display: true,
+              text: 'Patients Per Day by Department'
             }
           }
         }
