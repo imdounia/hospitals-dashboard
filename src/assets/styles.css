@@ -1,6 +1,7 @@
 :root {
   --backgournd: #141626;
   --background-card: #1D1F35;
+  --dark-blue: #262A41;
   --primary-color: #CF55F4;
   --secondary-color: #7E3BFA;
   --gradient-color: linear-gradient(to left, var(--primary-color), var(--secondary-color));
